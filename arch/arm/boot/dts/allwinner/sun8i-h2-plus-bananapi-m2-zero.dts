@@ -18,7 +18,7 @@
 	compatible = "sinovoip,bpi-m2-zero", "allwinner,sun8i-h2-plus";
 
 	aliases {
-		serial0 = &uart0;
+		serial0 = &uart2;
 		serial1 = &uart1;
 	};
 
@@ -56,6 +56,12 @@
 			gpios = <&r_pio 0 3 GPIO_ACTIVE_LOW>;
 			wakeup-source;
 		};
+	};
+
+	ctrl {
+		compatible = "gpio-hog";
+		pinctrl-names = "default";
+		pinctrl-0 = <&gpio_pins>;
 	};
 
 	reg_vdd_cpux: vdd-cpux-regulator {
@@ -109,6 +115,12 @@
 		clocks = <&rtc CLK_OSC32K_FANOUT>;
 		clock-names = "ext_clock";
 	};
+};
+
+&pwm {
+	pinctrl-names = "default";
+        pinctrl-0 = <&pwm_pins>;
+	status = "okay";
 };
 
 &cpu0 {
@@ -169,14 +181,14 @@
 &uart0 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&uart0_pa_pins>;
-	status = "okay";
+	status = "disabled";
 };
 
 &uart1 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&uart1_pins>, <&uart1_rts_cts_pins>;
 	uart-has-rtscts;
-	status = "okay";
+	status = "disabled";
 
 	bluetooth {
 		compatible = "brcm,bcm43438-bt";
@@ -192,15 +204,25 @@
 
 };
 
+&uart2 {
+        pinctrl-names = "default";
+        pinctrl-0 = <&uart2_pa_pins>;
+        status = "okay";
+};
+
 &pio {
 	gpio-line-names =
 		/* PA */
-		"CON2-P13", "CON2-P11", "CON2-P22", "CON2-P15",
-			"CON3-P03", "CON3-P02", "CON2-P07", "CON2-P29",
-		"CON2-P31", "CON2-P33", "CON2-P35", "CON2-P05",
-			"CON2-P03", "CON2-P08", "CON2-P10", "CON2-P16",
-		"CON2-P12", "CON2-P37", "CON2-P28", "CON2-P27",
-			"CON2-P40", "CON2-P38", "", "",
+		"PA0-CON2-P13",
+		"PA1-CON2-P11",
+		"PA2-CON2-P22",
+		"PA3-CON2-P15",
+		"PA4-CON3-P03",
+		"PA5-CON3-P02",
+		"PA6-CON2-P07",
+		"PA7-CON2-P29",
+		"", "", "", "", "", "", "", "",
+		"", "", "", "", "", "", "", "",
 		"", "", "", "", "", "", "", "",
 
 		/* PB */
@@ -226,7 +248,7 @@
 		"CN3-P17", "CN3-P13", "CN3-P09", "CN3-P07",
 			"CN3-P19", "CN3-P21", "CN3-P22", "CN3-P20",
 		"CN3-P18", "CN3-P16", "CN3-P14", "CN3-P12",
-			"CN3-P05", "CN3-P03", "CN3-P06", "CN3-P08",
+			"CN3-P06", "CN3-P08",
 		"", "", "", "", "", "", "", "",
 		"", "", "", "", "", "", "", "",
 
@@ -244,6 +266,21 @@
 			"BT-RST-N", "AP-WAKE-BT", "", "",
 		"", "", "", "", "", "", "", "",
 		"", "", "", "", "", "", "", "";
+
+	pwm_pins: pwm-pins {
+		pins = "PA5";
+		function = "pwm0";
+        };
+
+	gpio_pins: gpio-pins {
+		pins = "PA4", "PA14";
+		function = "gpio";
+	};
+
+	uart2_pa_pins: uart2-pins {
+                pins = "PA0", "PA1";
+                function = "uart2";
+        };
 };
 
 &r_pio {
@@ -256,18 +293,30 @@
 		"", "", "", "", "", "", "", "";
 };
 
-&usb_otg {
-	dr_mode = "otg";
+&i2c0 {
 	status = "okay";
+
+	clock-frequency = <400000>;
+
+	ssd1306_i2c: oled@3c {
+		compatible = "solomon,ssd1306fb-i2c";
+		reg = <0x3c>;
+		/* pwms = <&pwm 4 3000>; */
+		/* reset-gpios = <&gpio2 7>; */
+		solomon,height = <32>;
+		solomon,width = <128>;
+		solomon,com-seq;
+		solomon,com-invdir;
+		solomon,page-offset = <0>;
+		solomon,prechargep1 = <2>;
+		solomon,prechargep2 = <13>;
+	};
 };
 
-&usbphy {
-	usb0_id_det-gpios = <&r_pio 0 6 GPIO_ACTIVE_HIGH>; /* PL6 */
-	/*
-	 * There're two micro-USB connectors, one is power-only and another is
-	 * OTG. The Vbus of these two connectors are connected together, so
-	 * the external USB device will be powered just by the power input
-	 * from the power-only USB port.
-	 */
-	status = "okay";
+&i2c1 {
+	status = "disabled";
+};
+
+&i2c2 {
+	status = "disabled";
 };
