@@ -474,6 +474,17 @@ config PWM_MC33XS2410
 	  To compile this driver as a module, choose M here: the module
 	  will be called pwm-mc33xs2410.
 
+config PWM_MCF
+	tristate "NXP ColdFire mcPWM support"
+	depends on M5441x || COMPILE_TEST
+	select REGMAP_MMIO
+	help
+	   NXP ColdFire mcPWM (motor control PWM) support. This module is 
+	   available in the mcf5441x CPU family,
+
+	   To compile this driver as a module, choose M here: the module
+	   will be called pwm-mcf.
+
 config PWM_MEDIATEK
 	tristate "MediaTek PWM support"
 	depends on ARCH_MEDIATEK || RALINK || COMPILE_TEST
