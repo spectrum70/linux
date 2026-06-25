@@ -94,8 +94,22 @@ static struct platform_device dspi_spi0_device = {
 	},
 };
 
+static struct resource mcf_pwm_resource = {
+	.start = MCFPWM_BASE,
+	.end   = MCFPWM_BASE + MCFPWM_SIZE,
+	.flags = IORESOURCE_MEM,
+};
+
+static struct platform_device mcf_pwm_device = {
+	.name = "mcfpwm",
+	.id = 0,
+	.num_resources = 1,
+	.resource = &mcf_pwm_resource,
+};
+
 static struct platform_device *stmark2_devices[] __initdata = {
 	&dspi_spi0_device,
+	&mcf_pwm_device,
 };
 
 /*
